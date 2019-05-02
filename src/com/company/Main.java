@@ -9,6 +9,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -46,7 +49,7 @@ public class Main extends JFrame {
             mItems.add(JM.create(menuItems.get(BUTTON_TITLE_KEY, null), menuItems.get(BUTTON_EXECUTABLE_KEY, null)));
         }
 
-        setPreferredSize(new Dimension(200, 200));
+        setPreferredSize(new Dimension(400, 400));
         pack();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -92,44 +95,12 @@ public class Main extends JFrame {
 
         public void mouseClicked(MouseEvent ev) {
             if (this.action != null) {
-                ProcessBuilder processBuilder = new ProcessBuilder();
-                String[] commands = buildAction().split(" ");
-//                processBuilder.command("open", "-a", "'Google Chrome'", "https://www.amazon.com");
+                String[] commands = buildAction();
                 try {
-                    Runtime.getRuntime().exec(new String[]{"/usr/bin/open", "-a", "/Applications/Google", "Chrome.app", "https://amazon.com/"});
+                    Runtime.getRuntime().exec(commands);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-//                try {
-//
-//                    Process process = processBuilder.start();
-//
-//                    StringBuilder output = new StringBuilder();
-//
-//                    BufferedReader reader = new BufferedReader(
-//                            new InputStreamReader(process.getInputStream()));
-//
-//                    String line;
-//                    while ((line = reader.readLine()) != null) {
-//                        output.append(line + "\n");
-//                    }
-//
-//                    int exitVal = process.waitFor();
-//                    if (exitVal == 0) {
-//                        System.out.println("Success!");
-//                        System.out.println(output);
-//                        System.exit(0);
-//                    } else {
-//                        System.out.println("Failure :(");
-//                        System.out.println(output);
-//                    }
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
 
             }
 
@@ -149,7 +120,8 @@ public class Main extends JFrame {
         }
 
 
-        private String buildAction() {
+        private String[] buildAction() {
+            String splittedCommade[] = null;
             String command = action;
             Preferences prefs = new IniPreferences(ini);
             Preferences env = prefs.node("ENV");
@@ -166,9 +138,15 @@ public class Main extends JFrame {
 
             if (match != null) {
                 // Replace the variable with its value in the command to execute
-                command = command.replaceAll('#' + match, value);
+                splittedCommade = command.split(" ");
+                for (int i = 0 ; i < splittedCommade.length; i++) {
+                    if (('#' + match).equals(splittedCommade[i])) {
+                        splittedCommade[i] = value;
+                    }
+                }
+
             }
-            return command;
+            return splittedCommade;
         }
     }
 
