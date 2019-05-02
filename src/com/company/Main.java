@@ -7,10 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -95,43 +93,43 @@ public class Main extends JFrame {
         public void mouseClicked(MouseEvent ev) {
             if (this.action != null) {
                 ProcessBuilder processBuilder = new ProcessBuilder();
-                String[] commands = buildAction();
-                processBuilder.command(commands);
-
-//                if(this.action.endsWith(".bat")) {
-//                    processBuilder.command(this.action);
-//                } else {
-//                    processBuilder.command();
-//                }
+                String[] commands = buildAction().split(" ");
+//                processBuilder.command("open", "-a", "'Google Chrome'", "https://www.amazon.com");
                 try {
-
-                    Process process = processBuilder.start();
-
-                    StringBuilder output = new StringBuilder();
-
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(process.getInputStream()));
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        output.append(line + "\n");
-                    }
-
-                    int exitVal = process.waitFor();
-                    if (exitVal == 0) {
-                        System.out.println("Success!");
-                        System.out.println(output);
-                        System.exit(0);
-                    } else {
-                        System.out.println("Failure :(");
-                        System.out.println(output);
-                    }
-
+                    Runtime.getRuntime().exec(new String[]{"/usr/bin/open", "-a", "/Applications/Google", "Chrome.app", "https://amazon.com/"});
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+
+//                try {
+//
+//                    Process process = processBuilder.start();
+//
+//                    StringBuilder output = new StringBuilder();
+//
+//                    BufferedReader reader = new BufferedReader(
+//                            new InputStreamReader(process.getInputStream()));
+//
+//                    String line;
+//                    while ((line = reader.readLine()) != null) {
+//                        output.append(line + "\n");
+//                    }
+//
+//                    int exitVal = process.waitFor();
+//                    if (exitVal == 0) {
+//                        System.out.println("Success!");
+//                        System.out.println(output);
+//                        System.exit(0);
+//                    } else {
+//                        System.out.println("Failure :(");
+//                        System.out.println(output);
+//                    }
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
 
             }
 
@@ -151,18 +149,26 @@ public class Main extends JFrame {
         }
 
 
-        private String[] buildAction() {
-            String[] cmds = null;
+        private String buildAction() {
+            String command = action;
             Preferences prefs = new IniPreferences(ini);
             Preferences env = prefs.node("ENV");
 
-            Matcher matcher = Pattern.compile("#\\s*(\\w+)").matcher(action);
+            Matcher matcher = Pattern.compile("#\\s*(\\w+)").matcher(command);
+
+            // get the variable (CHROME, FIREFOX ..) value from the ENV section ...
+            String match = null;
+            String value = null;
             while (matcher.find()) {
-                String var = matcher.group(1);
-                String value = env.get("#" + var, null);
+                match = matcher.group(1);
+                value = env.get(match, null);
             }
 
-            return cmds;
+            if (match != null) {
+                // Replace the variable with its value in the command to execute
+                command = command.replaceAll('#' + match, value);
+            }
+            return command;
         }
     }
 
