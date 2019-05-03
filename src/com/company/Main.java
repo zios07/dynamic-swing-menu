@@ -16,13 +16,14 @@ import org.ini4j.IniPreferences;
 
 public class Main extends JFrame {
 
+	private static final int MENU_ITEM_COUNT = 5;
+	
 	private static final String DEFAULT_INI_FILE_PATH = "menu.ini";
 	private static final String BUTTON_TITLE_KEY = "ButtonTitle";
 	private static final String BUTTON_EXECUTABLE_KEY = "ButtonExecutable";
 	// private static final String FONT_SIZE_KEY = "FontSize";
 	// private static final String MENU_TITLE_KEY = "MenuTitle";
 	private static final String MENU_ITEM_KEY = "MenuItem";
-	private static final int MENU_ITEM_COUNT = 5;
 
 	private static Ini ini;
 
